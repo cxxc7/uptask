@@ -1,28 +1,14 @@
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { createTask } from "../redux/slices/taskSlice";
-import { useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
-import { toast } from "react-toastify";
 
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
-import { Label } from "../components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { createTask } from '../redux/slices/taskSlice';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
-export default function CreateTask() {
+const CreateTask = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading } = useSelector((state) => state.tasks);
-
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -31,11 +17,8 @@ export default function CreateTask() {
     priority: 'medium',
   });
 
-  const handleChange = (field, value) => {
-    setForm((prev) => ({
-      ...prev,
-      [field]: value
-    }));
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -48,114 +31,108 @@ export default function CreateTask() {
       toast.error(res.payload || 'Failed to create task');
     }
   };
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="max-w-2xl mx-auto">
-        <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-          <CardHeader className="border-b border-gray-200 dark:border-gray-700">
-            <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">
-              📝 Create New Task
-            </CardTitle>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              Add a new task to your list
-            </p>
-          </CardHeader>
+    <div className="flex items-center justify-center min-h-screen px-2 sm:px-4 lg:px-8 py-8 bg-gray-50 dark:bg-gray-900 w-full">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-2xl w-full max-w-lg mx-auto flex flex-col items-center border border-gray-200 dark:border-gray-700"
+      >
+        <h2 className="text-3xl font-extrabold mb-6 text-center text-indigo-700 dark:text-indigo-300 tracking-tight flex items-center gap-2">
+          <span className="bg-indigo-100 text-indigo-700 rounded-full px-3 py-1 text-lg">📝</span>
+          Create Task
+        </h2>
 
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Title */}
+        <div className="mb-6 w-full flex flex-col items-start">
+          <label htmlFor="title" className="mb-2 font-semibold text-gray-800 dark:text-gray-200 text-2xl self-center">
+            Title <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="title"
+            name="title"
+            type="text"
+            placeholder="Enter task title"
+            value={form.title}
+            onChange={handleChange}
+            required
+            className="w-96 px-4 py-4 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 mx-auto"
+          />
+        </div>
 
-              <div>
-                <Label htmlFor="title">Task Title <span className="text-red-500">*</span></Label>
-                <Input
-                  id="title"
-                  value={form.title}
-                  onChange={(e) => handleChange("title", e.target.value)}
-                  placeholder="Enter task title..."
-                  required
-                />
-              </div>
+        {/* Description */}
+        <div className="mb-6 w-full flex flex-col items-start">
+          <label htmlFor="description" className="mb-2 font-semibold text-gray-800 dark:text-gray-200 text-2xl self-center">
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            rows="5"
+            placeholder="Optional details..."
+            value={form.description}
+            onChange={handleChange}
+            className="w-80 px-4 py-4 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none mx-auto"
+          ></textarea>
+        </div>
 
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={form.description}
-                  onChange={(e) => handleChange("description", e.target.value)}
-                  placeholder="Enter task description..."
-                  rows={4}
-                />
-              </div>
+        {/* Fields: Priority / Due Date / Status */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 w-full">
+          <div className="flex flex-col items-center">
+            <label htmlFor="priority" className="mb-2 font-semibold text-gray-800 dark:text-gray-200 text-2xl">Priority</label>
+            <select
+              id="priority"
+              name="priority"
+              value={form.priority}
+              onChange={handleChange}
+              className="w-64 px-4 py-4 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 mx-auto"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="priority">Priority</Label>
-                  <Select
-                    value={form.priority}
-                    onValueChange={(value) => handleChange("priority", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+          <div className="flex flex-col items-center">
+            <label htmlFor="dueDate" className="mb-2 font-semibold text-gray-800 dark:text-gray-200 text-2xl">Due Date</label>
+            <input
+              id="dueDate"
+              name="dueDate"
+              type="date"
+              value={form.dueDate}
+              onChange={handleChange}
+              className="w-64 px-4 py-4 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 mx-auto"
+            />
+          </div>
 
-                <div>
-                  <Label htmlFor="dueDate">Due Date</Label>
-                  <Input
-                    type="date"
-                    id="dueDate"
-                    value={form.dueDate}
-                    onChange={(e) => handleChange("dueDate", e.target.value)}
-                  />
-                </div>
+          <div className="flex flex-col items-center">
+            <label htmlFor="status" className="mb-2 font-semibold text-gray-800 dark:text-gray-200 text-2xl">Status</label>
+            <select
+              id="status"
+              name="status"
+              value={form.status}
+              onChange={handleChange}
+              className="w-64 px-4 py-4 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 mx-auto"
+            >
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
 
-                <div>
-                  <Label htmlFor="status">Status</Label>
-                  <Select
-                    value={form.status}
-                    onValueChange={(value) => handleChange("status", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-6">
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium flex items-center space-x-2"
-                >
-                  {loading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Creating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="h-4 w-4" />
-                      <span>Create Task</span>
-                    </>
-                  )}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+        {/* Buttons */}
+        <div className="flex justify-center w-full mt-8">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-56 h-16 rounded-full bg-blue-600 hover:bg-blue-700 text-2xl font-bold shadow-lg transition-transform transform hover:scale-105 disabled:opacity-60 flex items-center justify-center gap-2"
+          >
+            {loading ? 'Creating...' : 'Create Task'}
+          </button>
+        </div>
+      </form>
     </div>
   );
-}
+};
+
+export default CreateTask;
 

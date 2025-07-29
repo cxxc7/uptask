@@ -4,13 +4,13 @@ import { fetchTasks } from "../redux/slices/taskSlice";
 import { setFilter } from "../redux/slices/uiSlice";
 import { Link } from "react-router-dom";
 
-import { 
-  Plus, 
-  CheckSquare, 
-  Clock, 
-  AlertTriangle, 
-  CheckCircle, 
-  Edit 
+import {
+  Plus,
+  CheckSquare,
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  Edit,
 } from "lucide-react";
 
 import { Button } from "../components/ui/button";
@@ -24,6 +24,7 @@ const statusTabs = [
   { label: "Pending", value: "pending" },
 ];
 
+// Badge background/text color logic
 const getPriorityColor = (priority) => {
   switch (priority) {
     case "high":
@@ -62,67 +63,84 @@ export default function Dashboard() {
     highPriority: tasks.filter((t) => t.priority === "high").length,
   };
 
+  const handleLogout = () => {
+    // Clear any auth tokens or user state here if needed
+    window.location.href = '/logout';
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="space-y-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your tasks efficiently</p>
-          </div>
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4">
+      <div className="space-y-6">
+        {/* Top Bar: Add Task left, Logout right */}
+        <div className="flex items-center justify-between mb-4 w-full">
           <Link to="/create">
             <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2">
               <Plus className="h-4 w-4" />
               <span>Add New Task</span>
             </Button>
           </Link>
+          <Button onClick={handleLogout} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium">Logout</Button>
         </div>
 
         {/* Stats */}
+        {/* Stats */}
         <div className="inline-flex gap-4 justify-center items-stretch w-full overflow-x-auto pb-2">
-          {/* Each stat card will be forced to same width and bold box style */}
           {[
             {
               label: "Total Tasks",
               value: taskStats.total,
-              icon: <CheckSquare className="h-6 w-6 text-blue-600" />,
-              color: "bg-blue-100 dark:bg-blue-900/30",
+              icon: <CheckSquare className="h-7 w-7 text-blue-600" />,
+              color: "bg-blue-200"
             },
             {
               label: "Completed",
               value: taskStats.completed,
-              icon: <CheckCircle className="h-6 w-6 text-emerald-600" />,
-              color: "bg-emerald-100 dark:bg-emerald-900/30",
+              icon: <CheckCircle className="h-7 w-7 text-emerald-600" />,
+              color: "bg-emerald-200"
             },
             {
               label: "Pending",
               value: taskStats.pending,
-              icon: <Clock className="h-6 w-6 text-amber-600" />,
-              color: "bg-amber-100 dark:bg-amber-900/30",
+              icon: <Clock className="h-7 w-7 text-amber-600" />,
+              color: "bg-amber-200"
             },
             {
               label: "High Priority",
               value: taskStats.highPriority,
-              icon: <AlertTriangle className="h-6 w-6 text-red-600" />,
-              color: "bg-red-100 dark:bg-red-900/30",
-            },
+              icon: <AlertTriangle className="h-7 w-7 text-red-600" />,
+              color: "bg-red-200"
+            }
           ].map((stat, index) => (
-            <Card key={index} className="bg-white dark:bg-gray-800 border">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</p>
-                    <p className="text-3xl font-bold mt-2 text-gray-900 dark:text-white">{stat.value}</p>
-                  </div>
-                  <div className={`p-3 rounded-lg ${stat.color}`}>{stat.icon}</div>
+            <Card
+              key={index}
+              className={`border border-gray-200 rounded-xl shadow-sm flex flex-col justify-center items-center py-5 px-3 bg-white w-full`}
+            >
+              <CardContent className="flex flex-col items-center gap-2">
+                <div className={`rounded-full flex items-center justify-center w-14 h-14 mb-2 ${stat.color}`}>
+                  {(() => {
+                    switch (stat.label) {
+                      case "Total Tasks":
+                        return <CheckSquare className="h-7 w-7 text-blue-600 bg-transparent" />;
+                      case "Completed":
+                        return <CheckCircle className="h-7 w-7 text-emerald-600 bg-transparent" />;
+                      case "Pending":
+                        return <Clock className="h-7 w-7 text-amber-600 bg-transparent" />;
+                      case "High Priority":
+                        return <AlertTriangle className="h-7 w-7 text-red-600 bg-transparent" />;
+                      default:
+                        return stat.icon;
+                    }
+                  })()}
                 </div>
+                <p className="text-base font-medium text-gray-600 text-center">{stat.label}</p>
+                <p className="text-3xl font-bold text-gray-900 text-center">{stat.value}</p>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Tabs and Tasks */}
-        <Card className="bg-white dark:bg-gray-800 border">
+        {/* Tabs and Task Cards */}
+        <Card className="bg-[var(--card)] dark:bg-gray-800 border w-full">
           <Tabs value={filter} onValueChange={(val) => dispatch(setFilter(val))}>
             <div className="border-b px-6 py-2">
               <TabsList className="grid grid-cols-3 max-w-sm">
@@ -135,47 +153,95 @@ export default function Dashboard() {
             </div>
 
             <TabsContent value={filter} className="p-6">
-              {loading ? (
-                <p className="text-center text-gray-500">Loading...</p>
-              ) : error ? (
-                <p className="text-center text-red-500">{error}</p>
-              ) : tasks.length === 0 ? (
-                <p className="text-center text-gray-500">No tasks found.</p>
-              ) : (
-                <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                  {tasks.map((task) => (
-                    <Card key={task._id} className="bg-gray-50 dark:bg-gray-700/50 border hover:shadow-md transition">
-                      <CardContent className="p-6 space-y-3">
-                        <div className="flex justify-between">
-                          <div className="flex flex-wrap gap-1">
-                            <Badge className={`${getPriorityColor(task.priority)} text-xs`}>
-                              {task.priority?.toUpperCase()}
-                            </Badge>
-                            <Badge className={`${getStatusColor(task.status)} text-xs`}>
-                              {task.status?.toUpperCase()}
-                            </Badge>
+              {(() => {
+                if (loading) {
+                  return <p className="text-center text-gray-500">Loading...</p>;
+                }
+                if (error) {
+                  return <p className="text-center text-red-500">{error}</p>;
+                }
+                if (tasks.length === 0) {
+                  return (
+                    <p className="text-center text-gray-500">No tasks found.</p>
+                  );
+                }
+                return (
+                  <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {tasks.map((task) => (
+                      <Card
+                        key={task._id}
+                        className="bg-[var(--card)] rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition w-full"
+                      >
+                        <CardContent className="p-4 space-y-4">
+                          {/* Edit Button */}
+                          <div className="flex justify-end">
+                            <Link to={`/edit/${task._id}`} title="Edit Task">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-gray-400 hover:text-blue-600"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </Link>
                           </div>
-                          <Link to={`/edit/${task._id}`}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-blue-600">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                        </div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {task.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {task.description}
-                        </p>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 flex justify-between">
-                          <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
-                          <span>{task.createdAt ? new Date(task.createdAt).toLocaleDateString() : ""}</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
+
+                          {/* Info Section */}
+                          <div className="space-y-3 text-sm text-gray-700">
+                            {[
+                              ["Title", task.title],
+                              ["Description", task.description],
+                              [
+                                "Created on",
+                                task.createdAt
+                                  ? new Date(task.createdAt).toLocaleString(undefined, {
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                      hour: "numeric",
+                                      minute: "numeric",
+                                      second: "numeric",
+                                      hour12: true,
+                                    })
+                                  : "N/A",
+                              ],
+                            ].map(([label, value], idx) => (
+                              <div key={idx} className="flex items-start gap-x-2">
+                                <span className="font-bold text-gray-800">{label}:</span>
+                                <span className="font-normal text-gray-700">{value}</span>
+                              </div>
+                            ))}
+
+                            {/* Status */}
+                            <div className="flex items-center gap-x-2">
+                              <span className="font-bold text-gray-800">Status:</span>
+                              <Badge
+                                className={`${getStatusColor(
+                                  task.status
+                                )} text-sm px-3 py-1 font-normal rounded-full shadow-sm`}
+                              >
+                                {task.status?.toUpperCase()}
+                              </Badge>
+                            </div>
+
+                            {/* Priority */}
+                            <div className="flex items-center gap-x-2">
+                              <span className="font-bold text-gray-800">Priority:</span>
+                              <Badge
+                                className={`${getPriorityColor(
+                                  task.priority
+                                )} text-sm px-3 py-1 font-normal rounded-full shadow-sm`}
+                              >
+                                {task.priority?.toUpperCase()}
+                              </Badge>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                );
+              })()}
             </TabsContent>
           </Tabs>
         </Card>
