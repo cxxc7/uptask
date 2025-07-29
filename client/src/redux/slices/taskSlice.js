@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
+
 const initialState = {
   tasks: [],
   loading: false,
@@ -11,7 +15,7 @@ export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async (status, th
   try {
     const state = thunkAPI.getState();
     const url = status ? `/api/tasks?status=${status}` : '/api/tasks';
-    const res = await axios.get(url, {
+    const res = await api.get(url, {
       headers: { Authorization: `Bearer ${state.auth.token}` },
     });
     return res.data;
@@ -23,7 +27,7 @@ export const fetchTasks = createAsyncThunk('tasks/fetchTasks', async (status, th
 export const createTask = createAsyncThunk('tasks/createTask', async (data, thunkAPI) => {
   try {
     const state = thunkAPI.getState();
-    const res = await axios.post('/api/tasks', data, {
+    const res = await api.post('/api/tasks', data, {
       headers: { Authorization: `Bearer ${state.auth.token}` },
     });
     return res.data;
@@ -35,7 +39,7 @@ export const createTask = createAsyncThunk('tasks/createTask', async (data, thun
 export const updateTask = createAsyncThunk('tasks/updateTask', async ({ id, data }, thunkAPI) => {
   try {
     const state = thunkAPI.getState();
-    const res = await axios.put(`/api/tasks/${id}`, data, {
+    const res = await api.put(`/api/tasks/${id}`, data, {
       headers: { Authorization: `Bearer ${state.auth.token}` },
     });
     return res.data;
@@ -47,7 +51,7 @@ export const updateTask = createAsyncThunk('tasks/updateTask', async ({ id, data
 export const deleteTask = createAsyncThunk('tasks/deleteTask', async (id, thunkAPI) => {
   try {
     const state = thunkAPI.getState();
-    await axios.delete(`/api/tasks/${id}`, {
+    await api.delete(`/api/tasks/${id}`, {
       headers: { Authorization: `Bearer ${state.auth.token}` },
     });
     return id;
